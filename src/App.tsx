@@ -4,7 +4,12 @@ import './App.css';
 interface Topics {
   id: number;
   title: string;
-  href: string;
+  body: string
+}
+
+interface FormValues {
+  title: string;
+  body: string;
 }
 
 /**
@@ -21,7 +26,7 @@ function Header(props:{ title?: string, onChangeMode: Function}){
 }
 
 function Nav(props: { topics: Topics[], onChangeMode: Function}){
-  const formToHtml = props.topics.map((topic) => <li><a id={String(topic.id)} href={topic.href} onClick={event => {
+  const formToHtml = props.topics.map((topic) => <li><a id={String(topic.id)} onClick={event => {
     event.preventDefault();
     const target = event.target as HTMLAnchorElement
     props.onChangeMode(target.id);
@@ -40,39 +45,69 @@ function Article(props: {title?: string, body: string}){
   </article>
 }
 
+function Create(props: { onCreate: Function}){
+  return <article>
+    <h2>Create</h2>
+    <form onSubmit={event => {
+      event.preventDefault();
+
+      const formData = new FormData(event.currentTarget);
+      const {title, body}: FormValues = {
+        title: formData.get('title') as string,
+        body: formData.get('body') as string,
+      };
+    
+      console.log(title, body)
+      props.onCreate(title, body)
+    }}>
+      <p><input type='text' name='title' placeholder='아이디를'/></p>
+      <p><textarea name='body' placeholder='body'></textarea></p>
+      <p><input type='submit' value="Create"></input></p>
+    </form>
+  </article>
+}
+
 function App() {
   const [id, setId] = useState<null | number>(null);
   const [mode, setMode] = useState<string>("WELCOME");
+  const [nextId, setNextId] = useState(4)
   // console.log("🚀 ~ file: App.tsx:45 ~ App ~ mode:", mode) // state의 value를 확인할때 사용함
   // console.log("🚀 ~ file: App.tsx:45 ~ App ~ setMode:", setMode) // value를 조작할때 사용함
   
   let content: JSX.Element | null = null;
 
-  const topics = [
+  const [topics, setTopics] = useState([
     {
       id: 1,
       title: 'html',
       body: 'html is...',
-      href: "/read/1"
     },
     {
       id: 2,
       title: 'css',
       body: 'css is...',
-      href: "/read/2"
     },
     {
       id: 3,
       title: 'js',
       body: 'js is...',
-      href: "/read/3"
     }
-  ];
-
+  ]);
   if (mode === "WELCOME") content = <Article title="Welcome" body="Hello, Web" />;
   else if (mode === "READ") {
     const topic = topics.find(t => t.id === Number(id))    
     return content = <Article title={topic!.title} body={topic!.body}></Article>
+  }
+  else if (mode ==="CREATE") {
+    content = <Create onCreate={(title: string,body: string) => {
+      const newTopic = {id: nextId, title, body,}
+      const newTopics = [...topics]
+      newTopics.push(newTopic)
+      setTopics(newTopics)
+      setMode("READ")
+      setId(nextId)
+      setNextId(nextId+1)
+    }}></Create>
   }
   
   return (
@@ -85,6 +120,10 @@ function App() {
         setId(id);
       }} />
       {content}
+      <a href='/create' onClick={event => {
+        event.preventDefault();
+        setMode('CREATE');
+      }}>Create</a>
     </div>
   );
 }
