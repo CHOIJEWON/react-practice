@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import './App.css';
 
 interface Topics {
@@ -40,33 +41,50 @@ function Article(props: {title?: string, body: string}){
 }
 
 function App() {
+  const [id, setId] = useState<null | number>(null);
+  const [mode, setMode] = useState<string>("WELCOME");
+  // console.log("🚀 ~ file: App.tsx:45 ~ App ~ mode:", mode) // state의 value를 확인할때 사용함
+  // console.log("🚀 ~ file: App.tsx:45 ~ App ~ setMode:", setMode) // value를 조작할때 사용함
+  
+  let content: JSX.Element | null = null;
+
   const topics = [
     {
       id: 1,
       title: 'html',
+      body: 'html is...',
       href: "/read/1"
     },
     {
       id: 2,
       title: 'css',
+      body: 'css is...',
       href: "/read/2"
     },
     {
       id: 3,
       title: 'js',
+      body: 'js is...',
       href: "/read/3"
     }
-  ]
+  ];
 
+  if (mode === "WELCOME") content = <Article title="Welcome" body="Hello, Web" />;
+  else if (mode === "READ") {
+    const topic = topics.find(t => t.id === Number(id))    
+    return content = <Article title={topic!.title} body={topic!.body}></Article>
+  }
+  
   return (
     <div className="App">
       <Header title="React" onChangeMode={() => {
-        alert('Header')
-      }}></Header>
+        setMode("WELCOME");
+      }} />
       <Nav topics={topics} onChangeMode={(id: number) => {
-        alert(id)
-      }}></Nav>
-      <Article title="Welcome" body="Hello, World"></Article>
+        setMode("READ")
+        setId(id);
+      }} />
+      {content}
     </div>
   );
 }
