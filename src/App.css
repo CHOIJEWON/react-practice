@@ -1,3 +1,13 @@
+/**
+* 해당 App.css에서 App.tsx의 css를 편집함
+*/
+
+body {
+  /**
+  * 해당 코드를 추가함으로 배경을 회색으로 변경되는것을 볼 수 있음
+  */
+  background-color: gray; 
+}
 .App {
   text-align: center;
 }
